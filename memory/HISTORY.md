@@ -1,0 +1,3 @@
+[2026-05-20 15:45] User asked about my available skills, and I listed my core summarization skill and the available class-helper skill.
+[2026-05-20 15:45] User attempted to install a new skill using `npx skills add ...`. Assistant clarified that it cannot execute `npx` directly and instructed the user to manually place the skill files into the `skills/` directory for activation.
+[2026-05-20 15:45] User attempted to install a new skill using `npx skills add`. Assistant explained the inability to execute `npx` or external installations and instructed the user to manually upload skill files to the `skills/` directory.

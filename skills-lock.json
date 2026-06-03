@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "docx": {
+      "source": "mz038197/vanscoding-skills",
+      "sourceType": "github",
+      "skillPath": "Documents/word/SKILL.md",
+      "computedHash": "e62f62bb4ba4f5512d70ac812d3a31ffd0ec9f7d0101a8901d21ce12947e3a16"
+    },
+    "felo-cli": {
+      "source": "mz038197/vanscoding-skills",
+      "sourceType": "github",
+      "skillPath": "Search/felo-cli/SKILL.md",
+      "computedHash": "7942d0e03a642a77b6a6d8bdb4ffc1f0d897d87964264d2581245ff4a231df48"
+    },
+    "pdf": {
+      "source": "mz038197/vanscoding-skills",
+      "sourceType": "github",
+      "skillPath": "Documents/pdf/SKILL.md",
+      "computedHash": "b01d70063be7115b374550f7f95498b34c861d1eb348cb807d697d29a5c2539a"
+    },
+    "peas-workshop-advanced-coach": {
+      "source": "mz038197/vanscoding-skills",
+      "sourceType": "github",
+      "skillPath": "Teacher/peas-workshop-advanced-coach/SKILL.md",
+      "computedHash": "afffc760ec128b67bd8d99aae95eb3138262cc0a13775e4870fec9b02d3f11f8"
+    },
+    "skill-creator": {
+      "source": "mz038197/vanscoding-skills",
+      "sourceType": "github",
+      "skillPath": "Documents/skill-creator/SKILL.md",
+      "computedHash": "3bc61dd979ebedf0f1907755dd72af7dc70fb5e92bd2d20219fc26e76f5b0d85"
+    }
+  }
+}

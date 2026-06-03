@@ -5,6 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "chainlit>=2.11.1",
     "langchain-openai>=1.1.16",
+    "openai-tts",
     "python-dotenv>=1.2.2",
+    "streamlit>=1.58.0",
 ]
+
+[tool.uv.sources]
+openai-tts = { git = "https://github.com/mz038197/openai-tts.git" }
