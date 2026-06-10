@@ -10,7 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from studio_shell.page_shell import page_shell
-from studio_shell.shell_ui import inject_style
+from studio_shell.shell_ui import format_extra_context, inject_style
 
 
 st.set_page_config(page_title="UI 元件詞彙表", page_icon="🧰", layout="wide")
@@ -164,7 +164,7 @@ def render_main() -> str:
     st.divider()
     _render_display_widgets()
 
-    return "【目前頁面】UI 元件詞彙表\n【任務】協助學生選擇適合的 Streamlit UI 元件，並把元件名稱寫進 Prompt。"
+    return format_extra_context("UI 元件詞彙表")
 
 
 page_shell(

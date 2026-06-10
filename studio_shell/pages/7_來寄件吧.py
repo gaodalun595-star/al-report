@@ -14,7 +14,7 @@ from studio_shell.page_shell import page_shell
 from studio_shell.shell_ui import format_extra_context, inject_style
 
 
-st.set_page_config(page_title="我要寄件", page_icon="📝", layout="wide")
+st.set_page_config(page_title="來寄件吧", page_icon="📝", layout="wide")
 inject_style()
 
 COMPANIES = ["黑貓宅急便", "7-ELEVEN 交貨便", "新竹物流"]
@@ -44,7 +44,7 @@ def render_main() -> str:
     if "shipping_pin" not in st.session_state:
         st.session_state.shipping_pin = ""
 
-    st.markdown("#### 我要寄件")
+    st.markdown("#### 來寄件吧")
 
     name_col1, name_col2 = st.columns(2)
     with name_col1:
@@ -140,7 +140,7 @@ def render_main() -> str:
         st.caption("尚未產生 PIN 碼，請先按「確認寄件」。")
 
     extra = format_extra_context(
-        "我要寄件",
+        "來寄件吧",
         寄件人姓名=sender or "（未填）",
         收件人姓名=receiver or "（未填）",
         國家區碼=country_code,
@@ -155,14 +155,12 @@ def render_main() -> str:
         PIN碼=st.session_state.shipping_pin or "（尚未產生）",
     )
 
-    st.markdown("#### 給 Agent 的摘要")
-    st.code(extra, language="text")
     return extra
 
 
 page_shell(
-    "我要寄件",
+    "來寄件吧",
     "線上填寫寄件資料、選付款方式並產生 PIN 碼。",
     render_main,
-    page_name="我要寄件",
+    page_name="來寄件吧",
 )

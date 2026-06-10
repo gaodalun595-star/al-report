@@ -6,11 +6,16 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "chainlit>=2.11.1",
+    "folium>=0.20.0",
+    "geopy>=2.4.1",
     "langchain-openai>=1.1.16",
     "openai-tts",
+    "peas-agent-core",
     "python-dotenv>=1.2.2",
     "streamlit>=1.58.0",
+    "streamlit-folium>=0.27.2",
 ]
 
 [tool.uv.sources]
 openai-tts = { git = "https://github.com/mz038197/openai-tts.git" }
+peas-agent-core = { git = "https://github.com/mz038197/peas-agent-core.git" }
