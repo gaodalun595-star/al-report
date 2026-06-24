@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+import re
 import sys
 from pathlib import Path
 
@@ -203,28 +204,74 @@ def _render_shipping_rate_table(company: str) -> None:
 
 @st.cache_data(show_spinner=False, ttl=60 * 60 * 24)
 def _geocode_address(address: str) -> tuple[float, float, str] | None:
+    """Geocode an address with multiple fallbacks for Taiwan addresses.
+
+    Returns (latitude, longitude, display_address) or None.
+    """
     if Nominatim is None:
         return None
 
-    query = address.strip()
-    if not query:
+    original = address.strip()
+    if not original:
         return None
-    if "台灣" not in query and "臺灣" not in query:
-        query = f"{query}, 台灣"
+
+    # Prepare a list of progressively relaxed queries.
+    queries = []
+
+    # 1. Original query with Taiwan suffix if missing.
+    q = original
+    if "台灣" not in q and "臺灣" not in q and "Taiwan" not in q:
+        q = f"{q}, 台灣"
+    queries.append(q)
+
+    # 2. Strip floor/room details (e.g. "3樓", "5F", "之1", "室").
+    simplified_floor = re.sub(r"(\d+\s*[Ff]|\d+\s*樓|\d+\s*樓層|\d+\s*室|\d+\s*之\d+|之\d+)", "", original).strip()
+    if simplified_floor != original:
+        q2 = simplified_floor
+        if "台灣" not in q2 and "臺灣" not in q2 and "Taiwan" not in q2:
+            q2 = f"{q2}, 台灣"
+        queries.append(q2)
+
+    # 3. Keep only district/road/number level.
+    simplified_block = re.sub(
+        r"(\d+\s*[Ff]|\d+\s*樓|\d+\s*樓層|\d+\s*室|\d+\s*之\d+|之\d+|巷\d+弄?\d*號?|弄\d+號?|號\d+巷?|段\d+巷?)",
+        "",
+        original,
+    ).strip()
+    if simplified_block != original and simplified_block != simplified_floor:
+        q3 = simplified_block
+        if "台灣" not in q3 and "臺灣" not in q3 and "Taiwan" not in q3:
+            q3 = f"{q3}, 台灣"
+        queries.append(q3)
 
     geolocator = Nominatim(user_agent="al_report_shipping_map")
-    try:
-        location = geolocator.geocode(
-            query,
-            language="zh-TW",
-            timeout=8,
-        )
-    except (GeocoderServiceError, GeocoderTimedOut, TimeoutError):
-        return None
+    seen = set()
+    for query in queries:
+        if query in seen:
+            continue
+        seen.add(query)
+        try:
+            results = geolocator.geocode(
+                query,
+                language="zh-TW",
+                exactly_one=False,
+                limit=5,
+                timeout=8,
+            )
+        except (GeocoderServiceError, GeocoderTimedOut, TimeoutError):
+            continue
 
-    if location is None:
-        return None
-    return location.latitude, location.longitude, location.address
+        if results:
+            # Prefer the result whose address contains "Taiwan" or Taiwan-related terms.
+            for loc in results:
+                addr = loc.address or ""
+                if "台灣" in addr or "Taiwan" in addr or "臺灣" in addr:
+                    return loc.latitude, loc.longitude, loc.address
+            # Fallback to the first result if none explicitly mention Taiwan.
+            loc = results[0]
+            return loc.latitude, loc.longitude, loc.address
+
+    return None
 
 
 def _search_address_suggestions(query: str, limit: int = 5) -> list[tuple[str, float, float, str]]:
@@ -234,12 +281,17 @@ def _search_address_suggestions(query: str, limit: int = 5) -> list[tuple[str, f
     """
     if Nominatim is None:
         return []
-    if not query:
+    if not query or len(query.strip()) < 2:
         return []
+
+    q = query.strip()
+    if "台灣" not in q and "臺灣" not in q and "Taiwan" not in q:
+        q = f"{q}, 台灣"
+
     geolocator = Nominatim(user_agent="al_report_shipping_map")
     try:
         results = geolocator.geocode(
-            query,
+            q,
             language="zh-TW",
             exactly_one=False,
             limit=limit,
@@ -267,7 +319,30 @@ def _reverse_geocode(lat: float, lon: float) -> str | None:
     return location.address if location else None
 
 
-def _render_address_map(address: str) -> tuple[float, float, str] | None:
+def _format_card_expiry(value: str) -> str:
+    """Format raw digits into MM/YY as the user types."""
+    digits = re.sub(r"\D", "", value)
+    if len(digits) >= 3:
+        return f"{digits[:2]}/{digits[2:4]}"
+    return digits
+
+
+def _render_address_map(
+    address: str,
+    *,
+    interactive: bool = True,
+    mode: str = "manual",
+) -> tuple[float, float, str] | None:
+    """Render the address map with a draggable red marker.
+
+    Args:
+        address: The address text used to centre the map.
+        interactive: When True, the marker is draggable and map clicks/drags update the selection.
+        mode: Either "manual" or "map". In "manual" mode geocoding failures are non-blocking.
+
+    Returns:
+        (latitude, longitude, display_address) or None if map packages are missing.
+    """
     st.markdown("#### 收件地址地圖")
 
     if folium is None or st_folium is None or Nominatim is None:
@@ -282,7 +357,12 @@ def _render_address_map(address: str) -> tuple[float, float, str] | None:
             location = _geocode_address(address)
 
         if location is None:
-            st.warning("找不到這個地址，請輸入更完整的台灣地址，例如：台北市中正區北平西路3號。")
+            if mode == "map":
+                st.warning(
+                    "無法自動在地圖上定位此地址，請改用搜尋建議或直接拖曳紅色指標選擇位置。"
+                )
+            else:
+                st.info("系統無法自動定位此地址，你仍可繼續手動輸入。")
             location = default_location
         else:
             st.caption(f"定位結果：{location[2]}")
@@ -294,6 +374,7 @@ def _render_address_map(address: str) -> tuple[float, float, str] | None:
     active_location = selected_location or location
     lat, lon, display_name = active_location
 
+    # 同步顯示目前定位與經緯度（自動完成選址後會立即反映）
     st.caption(f"目前定位：{display_name}")
     st.caption(f"經緯度：{lat:.6f}, {lon:.6f}")
 
@@ -305,12 +386,22 @@ def _render_address_map(address: str) -> tuple[float, float, str] | None:
         attr="© OpenStreetMap contributors",
     )
 
-    # 可拖曳的標記（使用預設圖示），讓使用者可以直接在地圖上調整位置
+    # 紅色定位指標（使用公開可用的紅色 marker PNG）
+    red_icon = folium.CustomIcon(
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+        icon_size=(25, 41),
+        icon_anchor=(12, 41),
+        popup_anchor=(1, -34),
+        shadow_size=(41, 41),
+    )
+
+    # 可拖曳的標記，讓使用者可以直接在地圖上調整位置
     marker = folium.Marker(
         [lat, lon],
         tooltip="目前位置（可拖曳）",
         popup=display_name,
-        draggable=True,
+        draggable=interactive,
+        icon=red_icon,
     )
     marker.add_to(map_view)
 
@@ -327,18 +418,33 @@ def _render_address_map(address: str) -> tuple[float, float, str] | None:
         height=380,
         use_container_width=True,
         key="send_address_map",
+        returned_objects=["last_clicked", "last_object_clicked", "all_drawings"],
     )
 
-    # 處理使用者在地圖上點擊或拖曳標記的事件
-    clicked_location = map_state.get("last_clicked") if map_state else None
-    if clicked_location:
-        clicked_lat = clicked_location["lat"]
-        clicked_lon = clicked_location["lng"]
+    if not interactive or not map_state:
+        return active_location
+
+    # 優先處理 marker 被點擊／拖曳的事件
+    object_clicked = map_state.get("last_object_clicked")
+    new_lat: float | None = None
+    new_lon: float | None = None
+
+    if object_clicked and object_clicked.get("lat") and object_clicked.get("lng"):
+        new_lat = object_clicked["lat"]
+        new_lon = object_clicked["lng"]
+
+    # 處理使用者在地圖空白處點擊的事件
+    clicked_location = map_state.get("last_clicked")
+    if new_lat is None and clicked_location:
+        new_lat = clicked_location.get("lat")
+        new_lon = clicked_location.get("lng")
+
+    if new_lat is not None and new_lon is not None:
         # 逆向編碼取得地址文字
-        rev_address = _reverse_geocode(clicked_lat, clicked_lon)
-        clicked_display = rev_address or f"座標 ({clicked_lat:.6f}, {clicked_lon:.6f})"
+        rev_address = _reverse_geocode(new_lat, new_lon)
+        clicked_display = rev_address or f"座標 ({new_lat:.6f}, {new_lon:.6f})"
         previous_location = st.session_state.get("send_selected_map_location")
-        next_location = (clicked_lat, clicked_lon, clicked_display)
+        next_location = (new_lat, new_lon, clicked_display)
         if previous_location != next_location:
             st.session_state.send_selected_map_location = next_location
             # 同步更新地址文字欄位，使使用者不必手動輸入
@@ -374,46 +480,82 @@ def render_main() -> str:
         phone = st.text_input("電話", key="send_phone", placeholder="例如：912345678")
 
     # ------------------------------------------------------------
-    # 地址輸入方式切換（手動輸入或使用地圖選取）
+    # 地址輸入方式切換（手動輸入或使用地圖選取，兩種模式互斥）
     # ------------------------------------------------------------
+    if "send_address_mode" not in st.session_state:
+        st.session_state.send_address_mode = "手動輸入地址"
+
     address_mode = st.radio(
         "地址輸入方式",
         options=["手動輸入地址", "使用地圖選取"],
-        index=0,
+        index=0 if st.session_state.send_address_mode == "手動輸入地址" else 1,
         key="send_address_mode",
     )
 
+    address = ""
+    map_location = None
+
     if address_mode == "手動輸入地址":
+        # 手動模式：只顯示文字輸入框，地圖只做唯讀預覽
         address = st.text_area(
             "收件地址",
             key="send_address",
             placeholder="請輸入完整地址",
+            value=st.session_state.get("send_address", ""),
         )
-        map_location = _render_address_map(address)
+        map_location = _render_address_map(address, interactive=False, mode="manual")
     else:
-        # 使用者在此輸入搜尋關鍵字，取得自動完成建議
+        # 地圖模式：隱藏手動輸入框，改由搜尋 + 地圖互動選點
+        st.caption("輸入關鍵字後選擇建議地址，或直接在地圖上拖曳紅色指標。")
         search_query = st.text_input(
             "搜尋地址（自動完成）",
             key="send_address_search",
             placeholder="輸入街道、地標等關鍵字",
+            value=st.session_state.get("send_address_search", ""),
         )
+
         suggestions = _search_address_suggestions(search_query) if len(search_query) > 2 else []
         selected_addr = None
+        selected_location = st.session_state.get("send_selected_map_location")
+
         if suggestions:
+            # 若已有選定位，把它放在下拉選單預設；否則顯示第一個建議
             options = [s[0] for s in suggestions]
-            selected_idx = st.selectbox("選擇地址", options, key="send_address_select")
-            # 找出對應的完整資訊
+            default_index = 0
+            if selected_location:
+                for idx, (opt, _lat, _lon, _full) in enumerate(suggestions):
+                    if opt == selected_location[2]:
+                        default_index = idx
+                        break
+
+            selected_idx = st.selectbox(
+                "選擇地址",
+                options,
+                index=default_index,
+                key="send_address_select",
+            )
             for opt, lat, lon, full in suggestions:
                 if opt == selected_idx:
                     selected_addr = full
                     st.session_state.send_selected_map_location = (lat, lon, full)
                     break
-        # 若使用者已選擇地址，直接使用該地址文字作為顯示；若是點擊地圖取得的地址，從 session_state 讀取
-        address = selected_addr if selected_addr else st.session_state.get("send_address", "")
-        # 將地址寫入主要的收件地址欄位，並以唯讀方式顯示，讓使用者不必再手動輸入
+
+        # 地址來源：搜尋建議 > 地圖拖曳結果 > 之前的輸入
+        if selected_addr:
+            address = selected_addr
+        elif selected_location:
+            address = selected_location[2]
+        else:
+            address = st.session_state.get("send_address", "")
+
+        # 把最終地址寫回 session_state
         st.session_state.send_address = address
-        st.text_area("收件地址", value=address, key="send_address", disabled=True)
-        map_location = _render_address_map(address)
+
+        # 若還沒選地址，提示使用者操作方式
+        if not address.strip():
+            st.info("請輸入關鍵字選擇地址，或直接在地圖上拖曳紅色指標定位。")
+
+        map_location = _render_address_map(address, interactive=True, mode="map")
     package_content = st.text_area("寄件內容", key="send_content", placeholder="例如：書籍、衣物、食品")
     note = st.text_area("備註", key="send_note", placeholder="有特殊需求可以填在這裡")
 
@@ -422,11 +564,26 @@ def render_main() -> str:
 
     select_col1, select_col2, select_col3 = st.columns(3)
     with select_col1:
-        company = st.selectbox("物流公司", list(COMPANY_OPTIONS), key="send_company")
+        company = st.selectbox(
+            "物流公司",
+            list(COMPANY_OPTIONS),
+            index=0,
+            key="send_company",
+        )
     with select_col2:
-        delivery_type = st.selectbox("配送方式", list(DELIVERY_OPTIONS), key="send_delivery_type")
+        delivery_type = st.selectbox(
+            "配送方式",
+            list(DELIVERY_OPTIONS),
+            index=0,
+            key="send_delivery_type",
+        )
     with select_col3:
-        package_type = st.selectbox("貨物類型", list(PACKAGE_RULES), key="send_package_type")
+        package_type = st.selectbox(
+            "貨物類型",
+            list(PACKAGE_RULES),
+            index=0,
+            key="send_package_type",
+        )
 
     rule = PACKAGE_RULES[package_type]
     max_length, max_width, max_height = rule["max_size"]
@@ -546,7 +703,18 @@ def render_main() -> str:
                 card_name = st.text_input("持卡人姓名", key="send_card_name")
                 card_no = st.text_input("信用卡號", key="send_card_no")
             with card_col2:
-                card_expiry = st.text_input("有效期限", placeholder="MM/YY", key="send_card_expiry")
+                def _on_card_expiry_change():
+                    raw = st.session_state.get("send_card_expiry_raw", "")
+                    st.session_state["send_card_expiry"] = _format_card_expiry(raw)
+
+                st.text_input(
+                    "有效期限",
+                    placeholder="MM/YY",
+                    key="send_card_expiry_raw",
+                    on_change=_on_card_expiry_change,
+                    max_chars=5,
+                )
+                card_expiry = st.session_state.get("send_card_expiry", "")
                 st.text_input("安全碼", type="password", key="send_card_cvv")
         else:
             st.info("送出後會產生 PIN 碼，可到 7-11 ibon 繳費並列印寄件資料。")
