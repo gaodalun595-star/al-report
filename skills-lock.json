@@ -19,17 +19,35 @@
       "skillPath": "Documents/pdf/SKILL.md",
       "computedHash": "b01d70063be7115b374550f7f95498b34c861d1eb348cb807d697d29a5c2539a"
     },
+    "peas-capstone-report": {
+      "source": "mz038197/vanscoding-skills",
+      "sourceType": "github",
+      "skillPath": "Teacher/peas-capstone-report/SKILL.md",
+      "computedHash": "6ec98244ec8292509b492623dfd864c5dc976133d9924310a33487c67bc7aed4"
+    },
     "peas-workshop-advanced-coach": {
       "source": "mz038197/vanscoding-skills",
       "sourceType": "github",
       "skillPath": "Teacher/peas-workshop-advanced-coach/SKILL.md",
       "computedHash": "afffc760ec128b67bd8d99aae95eb3138262cc0a13775e4870fec9b02d3f11f8"
     },
+    "pptx": {
+      "source": "mz038197/vanscoding-skills",
+      "sourceType": "github",
+      "skillPath": "Documents/pptx/SKILL.md",
+      "computedHash": "c6a8906684b704ddad43d8f1e6cfe23d96b042d526e584f36ba6c16595f1efe7"
+    },
     "skill-creator": {
       "source": "mz038197/vanscoding-skills",
       "sourceType": "github",
       "skillPath": "Documents/skill-creator/SKILL.md",
       "computedHash": "3bc61dd979ebedf0f1907755dd72af7dc70fb5e92bd2d20219fc26e76f5b0d85"
+    },
+    "vcr-imagegen": {
+      "source": "mz038197/vanscoding-skills",
+      "sourceType": "github",
+      "skillPath": "Media/vcr-imagegen/SKILL.md",
+      "computedHash": "17aa232d4e6322c37da9fb0d3ff9587c4e817673925353af8560c02bbec0a0f9"
     }
   }
 }

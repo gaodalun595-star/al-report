@@ -1,0 +1,14 @@
+{
+  "vcr-imagegen": "ok",
+  "pptx": "ok",
+  "vcr_key": "missing",
+  "node": "ok",
+  "pptxgenjs": "ok",
+  "playwright": "pending",
+  "sharp": "ok",
+  "python_pptx": "ok",
+  "python_docx": "ok",
+  "checked_at": "2026-06-24T00:00:00",
+  "project_agents_path": ".agents/skills/",
+  "notes": "playwright 背景安裝中（Step 6b 才需要）；vcr_key 為 missing（config.json api_key 空），Step 7 將走 poster-fallback.md"
+}

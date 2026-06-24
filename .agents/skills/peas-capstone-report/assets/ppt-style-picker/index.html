@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>專題報告 PPT 風格 · 三選一</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 24px;
+      color: #1c2833;
+    }
+    h1 { text-align: center; font-size: 1.5rem; margin-bottom: 8px; }
+    .hint { text-align: center; color: #555; margin-bottom: 28px; max-width: 640px; margin-left: auto; margin-right: auto; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+      border: 3px solid transparent;
+    }
+    .card:hover { border-color: #2e4053; }
+    .preview {
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #fff;
+    }
+    .preview.classic-blue { background: linear-gradient(135deg, #1C2833 0%, #2E4053 100%); }
+    .preview.teal-coral { background: linear-gradient(135deg, #277884 0%, #5EA8A7 50%, #FE4447 100%); }
+    .preview.sage-terracotta { background: linear-gradient(135deg, #87A96B 0%, #E07A5F 100%); }
+    .body { padding: 16px; }
+    .body h2 { margin: 0 0 6px; font-size: 1.1rem; }
+    .code { font-family: Consolas, monospace; font-size: 0.85rem; color: #666; }
+    .tag { display: inline-block; background: #eef2f5; padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-right: 6px; }
+    .fit { font-size: 0.9rem; color: #555; margin-top: 8px; }
+    footer { text-align: center; margin-top: 32px; font-size: 0.95rem; color: #333; }
+    footer strong { color: #1c2833; }
+  </style>
+</head>
+<body>
+  <h1>專題報告 PowerPoint 風格</h1>
+  <p class="hint">請<strong>三選一</strong>。看完後回到 Cursor，回覆 <strong>A</strong>、<strong>B</strong>、<strong>C</strong> 或下方代號（例如「我選 classic-blue」）。</p>
+
+  <div class="grid">
+    <article class="card">
+      <div class="preview classic-blue">A · 經典藍</div>
+      <div class="body">
+        <h2><span class="tag">A</span>經典藍</h2>
+        <p class="code">classic-blue</p>
+        <p class="fit">穩重、口試正式</p>
+      </div>
+    </article>
+    <article class="card">
+      <div class="preview teal-coral">B · 青綠珊瑚</div>
+      <div class="body">
+        <h2><span class="tag">B</span>青綠珊瑚</h2>
+        <p class="code">teal-coral</p>
+        <p class="fit">清新、科技專題</p>
+      </div>
+    </article>
+    <article class="card">
+      <div class="preview sage-terracotta">C · 鼠尾草赤陶</div>
+      <div class="body">
+        <h2><span class="tag">C</span>鼠尾草赤陶</h2>
+        <p class="code">sage-terracotta</p>
+        <p class="fit">溫暖、人文／生活類 App</p>
+      </div>
+    </article>
+  </div>
+
+  <footer>
+    選好後在 Cursor 跟導覽助手說：<strong>「我選 A」</strong> 或 <strong>「我選 classic-blue」</strong>
+  </footer>
+</body>
+</html>

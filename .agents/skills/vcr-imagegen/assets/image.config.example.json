@@ -1,0 +1,13 @@
+{
+  "default_model": "openrouter@black-forest-labs/flux.2-klein-4b",
+  "edit_model": "openrouter@openai/gpt-5.4-image-2",
+  "models": {
+    "icon": "openrouter@black-forest-labs/flux.2-klein-4b",
+    "ui_mockup": "openrouter@openai/gpt-5.4-image-2",
+    "photo": "openrouter@bytedance-seed/seedream-4.5"
+  },
+  "max_references": 16,
+  "output_dir": "assets/generated",
+  "aspect_ratio": "1:1",
+  "resolution": "512"
+}

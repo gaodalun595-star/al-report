@@ -1,0 +1,21 @@
+flowchart LR
+  subgraph left [左欄 自訂頁]
+    P6["寄件頁<br/>拖曳圖標找位置"]
+    Form["填資料<br/>寄件人/收件人/地址"]
+    Pay["選物流公司 + 銀行卡"]
+    Size["選包裹大小"]
+  end
+  subgraph right [右欄 我的 Agent]
+    Panel["聊天面板"]
+    Core["AI 大腦"]
+  end
+  subgraph store [資料存放]
+    Track["進度表"]
+  end
+  P6 -->|"拖曳後送出位置"| Panel
+  Form -->|"訂單摘要"| Panel
+  Pay -->|"付款資訊"| Panel
+  Size -->|"包裹規格"| Panel
+  Panel --> Core
+  Core -->|"Agent 寫入進度"| Track
+  P6 -->|"左欄讀進度更新畫面"| Track

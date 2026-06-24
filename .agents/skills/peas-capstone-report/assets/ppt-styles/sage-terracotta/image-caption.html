@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+html { background: #ffffff; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #F4F1DE; display: flex; flex-direction: column;
+  font-family: Arial, Helvetica, sans-serif; box-sizing: border-box;
+  overflow: hidden;
+}
+.bar { background: #87A96B; height: 10pt; width: 100%; flex-shrink: 0; }
+.accent { color: #E07A5F; }
+h1 { color: #87A96B; font-size: 32pt; margin: 0 0 12pt 0; }
+h2 { color: #87A96B; font-size: 26pt; margin: 0 0 10pt 0; }
+p { color: #E07A5F; font-size: 16pt; margin: 4pt 0; }
+ul { color: #E07A5F; font-size: 16pt; margin: 0; padding-left: 20pt; }
+li { margin-bottom: 6pt; }
+img { object-fit: contain; }
+
+.pad { padding: 20pt 28pt 24pt 28pt; flex: 1; display: flex; flex-direction: column; }
+.row { flex: 1; display: flex; flex-direction: row; gap: 16pt; align-items: flex-start; }
+.col-img { width: 340pt; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.col-img img { max-width: 340pt; max-height: 260pt; }
+.col-text { flex: 1; }
+</style></head>
+<body>
+<div class="bar"></div>
+<div class="pad">
+  <h2>{{HEADING}}</h2>
+  <div class="row">
+    <div class="col-img"><img src="{{IMAGE_PATH}}" alt=""></div>
+    <div class="col-text">{{BULLETS_HTML}}</div>
+  </div>
+</div></body></html>

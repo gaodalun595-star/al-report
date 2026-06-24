@@ -1,0 +1,18 @@
+flowchart TB
+  subgraph studentSide [學生端]
+    Studio["Agent Studio 網頁 App"]
+    Config["本機 Agent 設定檔"]
+  end
+  subgraph gateway [學校 AI 閘道]
+    Router["Ollama Router 負載平衡"]
+    Portal["課堂 Portal 與 API Key 管理"]
+  end
+  subgraph compute [AI 運算節點]
+    O1["Ollama 節點 A"]
+    O2["Ollama 節點 B"]
+  end
+  Studio -->|"帶 API Key 呼叫 LLM"| Router
+  Config -.->|"啟用 Agent 時讀取"| Studio
+  Portal -->|"老師發放學生 Key"| Config
+  Router -->|"分散請求"| O1
+  Router --> O2

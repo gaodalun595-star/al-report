@@ -1,0 +1,26 @@
+{
+  "name": "al-report",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaodalun595-star/al-report.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gaodalun595-star/al-report/issues"
+  },
+  "homepage": "https://github.com/gaodalun595-star/al-report#readme",
+  "dependencies": {
+    "playwright": "^1.61.1",
+    "pptxgenjs": "^4.0.1",
+    "sharp": "^0.35.2"
+  }
+}

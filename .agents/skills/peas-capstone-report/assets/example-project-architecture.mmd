@@ -1,0 +1,21 @@
+flowchart LR
+  subgraph left [左欄網頁]
+    P4["點餐頁"]
+    P5["心情儀表板"]
+    EC["整理成 Agent 摘要"]
+  end
+  subgraph right [右欄 AI 助手]
+    Panel["聊天面板"]
+    Core["AI 大腦"]
+  end
+  subgraph store [資料存放]
+    JSON["訂單檔"]
+    Data["頁面設定"]
+  end
+  P4 --> EC
+  P5 --> EC
+  EC -->|"每則問題附上左欄狀態"| Panel
+  Panel --> Core
+  Core -->|"Agent 寫入訂單"| JSON
+  P4 -->|"左欄讀取訂單"| JSON
+  P5 --> Data
